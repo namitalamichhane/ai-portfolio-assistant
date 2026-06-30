@@ -27,8 +27,7 @@ Resume + Projects + Experience
             │
             ▼
   Recruiter asks a question,
-   gets a sourced, first-person
-        answer in seconds
+gets a sourced answer in seconds
 ```
 
 ## What it does
