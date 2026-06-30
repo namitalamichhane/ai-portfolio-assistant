@@ -10,7 +10,7 @@ A chatbot that lets recruiters ask questions about my background, projects, expe
 
 ## The idea
 
-Recruiters spend seconds per resume. A static PDF or a pile of GitHub repos does not let them ask the specific question they actually care about — *"what ML projects has she built?"* or *"does she have SQL experience?"* This assistant answers those questions directly, in my own voice, sourced only from my real portfolio content.
+Recruiters spend seconds per resume. A static PDF or a pile of GitHub repos does not let them ask the specific question they actually care about *"what ML projects has she built?"* or *"does she have SQL experience?"* This assistant answers those questions directly, in my own voice, sourced only from my real portfolio content.
 
 ```
 Resume + Projects + Experience
