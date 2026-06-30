@@ -1,35 +1,62 @@
-# Namita's Portfolio Assistant
+# AI Portfolio Assistant
 
-A recruiter-facing AI chatbot that answers questions about Namita's resume, projects, and experience — sourced live from a Google Doc, with the Gemini API key kept secure server-side.
+A chatbot that lets recruiters ask questions about my background, projects, experience, skills, and research instead of reading through a resume and multiple GitHub READMEs manually.
 
-## How it works
-- `index.html` — the chat UI. Auto-loads on page visit (no setup screen for visitors).
-- `api/chat.js` — a Vercel serverless function that holds your Gemini API key secretly and proxies requests to Google. Your key is never exposed in the browser.
+**Live demo:**
 
-## Deploy to Vercel (free, ~5 minutes)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Chat%20with%20Me-6c4ff6?style=for-the-badge&logo=vercel&logoColor=white)](https://portfolio-assistant-project.vercel.app)
 
-1. Go to **vercel.com** → sign up (free, GitHub login works)
-2. Click **"Add New" → "Project"**
-3. Choose **"Deploy without Git"** or drag this whole folder (containing `index.html` and the `api` folder) onto the upload area
-4. Before/after deploying, go to **Project Settings → Environment Variables**
-5. Add a new variable:
-   - **Name:** `GEMINI_API_KEY`
-   - **Value:** your Gemini key (starts with `AIza` or `AQ.`) from aistudio.google.com
-6. Click **Save**, then **redeploy** (Settings → Deployments → "..." → Redeploy) so the function picks up the new variable
-7. Your live URL will look like `your-project.vercel.app` — visit it to confirm the chat loads automatically
+---
 
-## Updating your portfolio content
-Just edit your Google Doc — the chatbot re-fetches it on every message. No redeploy needed.
+## The idea
 
-## Embedding on Lovable
-```html
-<iframe
-  src="YOUR-VERCEL-URL"
-  width="100%"
-  height="650px"
-  style="border:none; border-radius:16px;"
-></iframe>
+Recruiters spend seconds per resume. A static PDF or a pile of GitHub repos does not let them ask the specific question they actually care about — *"what ML projects has she built?"* or *"does she have SQL experience?"* This assistant answers those questions directly, in my own voice, sourced only from my real portfolio content.
+
+```
+Resume + Projects + Experience
+            │
+            ▼
+     Google Doc (live, editable)
+            │
+            ▼
+   Vercel serverless function
+   (keeps the AI key secure)
+            │
+            ▼
+      Gemini API (answers)
+            │
+            ▼
+  Recruiter asks a question,
+   gets a sourced, first-person
+        answer in seconds
 ```
 
-## Security note
-The Gemini API key lives only in Vercel's environment variables and is read by `api/chat.js` on the server. It is never sent to or visible in the recruiter's browser, view-source, or network tab.
+## What it does
+
+- Chat interface answering only from my real portfolio content — no web browsing, no hallucinated claims
+- Every answer ends with a source tag (e.g. *Source: Projects*) so claims are traceable
+- Content lives in a single Google Doc — I edit the doc, the assistant reflects the change on the next message, no redeploy needed
+- Speaks in first person, as if I'm personally walking the recruiter through my background
+- Embedded directly on my portfolio site
+
+## Architecture decisions (and why)
+
+**No vector database.** My first instinct was to build a full RAG pipeline: document loaders, chunk managers, ChromaDB, embeddings. After a few rebuilds I realized that was solving a problem I didn't have. My entire portfolio fits comfortably inside a single LLM context window. So the "knowledge base" is just plain text, fetched live from a Google Doc and passed straight into the prompt. No infrastructure, no token-budget juggling, no framework to maintain — and it answers just as well.
+
+**Google Docs as the CMS.** Instead of building an admin panel or a content pipeline, I publish a Google Doc to the web and fetch it client-side. Editing the doc *is* the update mechanism. Zero deploys for content changes.
+
+**Serverless proxy for the API key.** The first version called the Gemini API directly from the browser, which meant the API key was visible in page source — a real security gap for anything public-facing. The fix was a small Vercel function (`/api/chat.js`) that holds the key server-side as an environment variable and proxies the request. The browser never sees the key.
+
+**Dropped the Job Description Analyzer.** I originally planned a feature comparing job descriptions against my resume. I cut it because it didn't reflect how recruiters actually evaluate candidates — it pushed the product toward gimmicky scoring rather than genuinely useful, conversational answers.
+
+## Stack
+
+- Vanilla HTML/CSS/JS frontend (no framework — kept deliberately simple)
+- Google Gemini API for generation
+- Vercel serverless function for secure key handling
+- Google Docs (published to web) as the live content source
+
+## What I would build next
+
+- Per-section source documents (separate docs for blog posts/research) for more granular citations
+- Light analytics on what recruiters actually ask, to learn what to highlight in my portfolio
